@@ -1,0 +1,226 @@
+functions:
+  - ensurePropertiesExample
+  - ensureAllArraysHaveItemTypes
+  - ensureSnakeCaseWithDigits
+rules:
+  paths-kebab-case:
+    x-tags:
+      - it
+    description: |
+      Paths should be kebab-case.
+    message: '{{property}} is not kebab-case: {{error}}'
+    severity: warn
+    recommended: true
+    given: '$.paths[*]~'
+    then:
+      function: pattern
+      functionOptions:
+        match: '^(/[a-z0-9-.]+|/{[a-zA-Z0-9_]+})+$'
+  protocol-https-only:
+    description: ALL requests MUST go through `https` protocol only
+    recommended: true
+    severity: error
+    message: Servers MUST be https and no other protocol is allowed.
+    given: $.servers..url
+    then:
+      function: pattern
+      functionOptions:
+        match: '/^https:/'
+  snake-case-for-query-parameters:
+    severity: error
+    given: '$..parameters[?(@ && @.in==''query'')].name'
+    then:
+      function: pattern
+      functionOptions:
+        match: '^[a-z][_a-z0-9]*$'
+    description: |
+      Query parameter must use snake-case and match this pattern: `^[a-z][_a-z0-9]*$`.
+
+      **Invalid Example**
+
+      ```yaml lineNumbers
+      parameters:
+         - schema:
+             type: string
+           in: query
+           name: record-status
+      ```
+
+      **Valid Example**
+
+      ```yaml lineNumbers
+      parameters:
+         - schema:
+             type: string
+           in: query
+           name: record_status
+      ```
+    message: Query parameters must be snake_case
+  headers-hyphenated-pascal-case:
+    given: '$..parameters[?(@.in == ''header'')].name'
+    severity: warn
+    then:
+      function: pattern
+      functionOptions:
+        match: '/^([A-Z][a-z0-9]-)*([A-Z][a-z0-9])+/'
+    description: |
+      Header parameters should use hyphenated Pascal case.
+
+      **Invalid Example**
+
+      ```yaml lineNumbers
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: PascalCaseHeader
+      ```
+
+      **Valid Example**
+
+      ```yaml lineNumbers
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Pascal-Case-Header
+      ```
+    message: Header parameters should be Hyphenated-Pascal-Case
+  properties-must-include-examples:
+    description: Object properties must include examples
+    given: $..properties..properties.*
+    severity: error
+    message: '{{description}}; {{property}}'
+    then:
+      function: ensurePropertiesExample
+  headers-must-include-examples:
+    description: Headers must include examples
+    given: $..headers.*
+    severity: error
+    message: '{{description}}; missing {{property}}'
+    then:
+      function: ensurePropertiesExample
+  path-must-include-version:
+    description: Path must include the version
+    message: '{{description}}; {{property}} incorrect'
+    severity: error
+    resolved: false
+    given: '$.paths[*]~'
+    then:
+      function: pattern
+      functionOptions:
+        match: .*\/v1\/.*$
+  must-use-standard-http-status-codes:
+    message: '{{property}} is not a standardized response code'
+    description: MUST use standard HTTP status codes
+    severity: error
+    given: $.paths.*.*.responses.*~
+    then:
+      function: enumeration
+      functionOptions:
+        values:
+          - '100'
+          - '101'
+          - '200'
+          - '201'
+          - '202'
+          - '203'
+          - '204'
+          - '205'
+          - '206'
+          - '207'
+          - '300'
+          - '301'
+          - '302'
+          - '303'
+          - '304'
+          - '305'
+          - '307'
+          - '400'
+          - '401'
+          - '402'
+          - '403'
+          - '404'
+          - '405'
+          - '406'
+          - '407'
+          - '408'
+          - '409'
+          - '410'
+          - '411'
+          - '412'
+          - '413'
+          - '414'
+          - '415'
+          - '416'
+          - '417'
+          - '423'
+          - '426'
+          - '428'
+          - '429'
+          - '431'
+          - '500'
+          - '501'
+          - '502'
+          - '503'
+          - '504'
+          - '505'
+          - '511'
+          - default
+  common-responses-server-error:
+    description: Responses should contain common response - 500 (server error)
+    message: '{{description}}. Missing {{property}}'
+    severity: error
+    given: $.paths..responses
+    then:
+      field: '500'
+      function: truthy
+  path-parameters-camelCase-alphanumeric:
+    description: Path parameters MUST follow camelCase
+    severity: warn
+    recommended: true
+    message: '{{property}} path parameter is not camelCase: {{error}}'
+    given: '$..parameters[?(@.in == ''path'')].name'
+    then:
+      function: pattern
+      functionOptions:
+        match: '^[a-z][a-zA-Z0-9]+$'
+  array-properties-must-have-items-with-type:
+    description: Array properties must have an items attribute with a type
+    given: '$..*.properties[*]'
+    severity: error
+    message: '{{error}}'
+    then:
+      function: ensureAllArraysHaveItemTypes
+  schema-key-must-be-snake-cased:
+    description: schema key must be snake cased (e.g. snake_case)
+    type: style
+    given: '$.components[''schemas''].*~'
+    severity: error
+    message: '{{error}}'
+    then:
+      function: ensureSnakeCaseWithDigits
+  parameter-key-must-be-snake-cased:
+    description: parameter key must be snake cased (e.g. snake_case)
+    type: style
+    given: '$.components[''parameters''].*~'
+    severity: error
+    message: '{{error}}'
+    then:
+      function: ensureSnakeCaseWithDigits
+  example-key-must-be-snake-cased:
+    description: example key must be snake cased (e.g. snake_case)
+    type: style
+    given: '$.components[''examples''].*~'
+    severity: error
+    message: '{{error}}'
+    then:
+      function: ensureSnakeCaseWithDigits
+  response-key-must-be-snake-cased:
+    description: response key must be snake cased (e.g. snake_case)
+    type: style
+    given: '$.components[''responses''].*~'
+    severity: error
+    message: '{{error}}'
+    then:
+      function: ensureSnakeCaseWithDigits

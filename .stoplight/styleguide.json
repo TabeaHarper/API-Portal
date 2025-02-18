@@ -1,0 +1,31 @@
+{
+  "name": "API-Portal",
+  "description": "",
+  "spectralExtends": [
+    "spectral:asyncapi"
+  ],
+  "extends": [],
+  "formats": [
+    "oas2",
+    "oas3",
+    "oas3.0",
+    "oas3.1"
+  ],
+  "aliases": {},
+  "rules": {
+    "asyncapi-info-title": {
+      "id": "aHiP-BTCJatemOh-XJxp_",
+      "given": [
+        "$.info"
+      ],
+      "severity": "error",
+      "then": {
+        "function": "truthy",
+        "field": "title"
+      },
+      "name": "asyncapi-info-title",
+      "description": "AsyncAPI should have an `info.title` field"
+    }
+  },
+  "extendedDefault": false
+}

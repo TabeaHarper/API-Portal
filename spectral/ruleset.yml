@@ -1,0 +1,5 @@
+extends:extends: [spectral:oas, spectral:asyncapi, recommended, ./customRules.yml]
+functionsDir: ./spectral/functions
+rules:
+  contact-properties: 'off'
+  operation-singular-tag: 'off'
